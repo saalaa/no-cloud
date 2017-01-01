@@ -35,6 +35,8 @@ setup(
     author_email='myardbenoit@gmail.com',
     description='There is no cloud',
     install_requires=requirements,
+    zip_safe=False,
+    platforms='any',
     packages=[
         'no_cloud'
     ],

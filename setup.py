@@ -39,7 +39,7 @@ setup(
     platforms='any',
     packages=[
         'no_cloud'
-        'no_cloud.remote'
+        '.remote'
     ],
     entry_points={
         'console_scripts': [
@@ -47,12 +47,12 @@ setup(
         ]
     },
     classifiers=[
-        "Topic :: Utilities",
-        "Environment :: Console",
-        "Intended Audience :: Developers",
-        "License :: OSI Approved :: BSD License",
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 2",
-        "Programming Language :: Python :: 2.7"
+        'Topic :: Utilities',
+        'Environment :: Console',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: BSD License',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7'
     ]
 )

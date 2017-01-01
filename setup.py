@@ -35,9 +35,21 @@ setup(
     author_email='myardbenoit@gmail.com',
     description='There is no cloud',
     install_requires=requirements,
+    packages=[
+        'no_cloud'
+    ],
     entry_points={
         'console_scripts': [
             'no-cloud = no_cloud.cli:main'
         ]
-    }
+    },
+    classifiers=[
+        "Topic :: Utilities",
+        "Environment :: Console",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: BSD License",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 2",
+        "Programming Language :: Python :: 2.7"
+    ]
 )

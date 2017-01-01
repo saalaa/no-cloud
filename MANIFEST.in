@@ -4,4 +4,4 @@ include README.md
 
 include requirements.txt
 
-graft no_cloud/
+graft no_cloud

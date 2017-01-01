@@ -38,8 +38,8 @@ setup(
     zip_safe=False,
     platforms='any',
     packages=[
-        'no_cloud'
-        '.remote'
+        'no_cloud',
+        'no_cloud.remote'
     ],
     entry_points={
         'console_scripts': [

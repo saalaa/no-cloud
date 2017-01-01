@@ -39,6 +39,7 @@ setup(
     platforms='any',
     packages=[
         'no_cloud'
+        'no_cloud.remote'
     ],
     entry_points={
         'console_scripts': [

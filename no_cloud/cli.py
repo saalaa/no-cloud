@@ -42,7 +42,12 @@ def cli():
 
 @cli.command()
 def remote():
-    '''Configuring push/pull commands.
+    '''Remote configuration for `pull` and `push` commands.
+
+    Both `pull` and `push` commands rely on `.no-cloud.yml` (which can be
+    transparently encrypted for figuring out remote information. Configuration
+    files are looked for recursively starting from the path provided to said
+    commands.
 
     Sample configuration for S3:
 
@@ -53,7 +58,7 @@ def remote():
         key: PRIVATE_KEY
         secret: SECRET
 
-    Sample configuration for SFTP:
+    Sample configuration for SFTP (not yet implemented):
 
         \b
         driver: sftp
@@ -73,9 +78,12 @@ def push(paths):
     '''Push files to remote storage.
 
     This command will push files to remote storage, overriding any previously
-    existing file.
+    existing remote file.
 
-        push .
+        $ no-cloud push ~/Documents/passwords
+
+    Remote configuration is found recursively starting from the path provided.
+    See `remote` for more information.
     '''
     for path in paths:
         root, filename = find_in_path(path, '.no-cloud.yml.crypt',
@@ -96,9 +104,12 @@ def pull(paths):
     '''Pull files from remote storage.
 
     This command will pull files from remote storage, overriding any previously
-    existing file.
+    existing local file.
 
-        pull .
+        $ no-cloud pull ~/Documents/passwords
+
+    Remote configuration is found recursively starting from the path provided.
+    See `remote` for more information.
     '''
     for path in paths:
         root, filename = find_in_path(path, '.no-cloud.yml.crypt',
@@ -114,12 +125,20 @@ def pull(paths):
 
 @cli.command()
 @click.option('-d', '--dry-run', is_flag=True, help='Do not perform anything.')
-@click.option('-k', '--keep', is_flag=True, help='')
+@click.option('-k', '--keep', is_flag=True, help='Leave clear files behind.')
 @click.argument('paths', nargs=-1)
 def encrypt(dry_run, keep, paths):
     '''Encrypt files using a passphrase.
 
-        encrypt ~/Documents/invoices
+    Encrypt files using Fernet encryption. Unless `--keep` is passed, the
+    command will remove the clear version of the file.
+
+    Encrypted files have the `.crypt` extension.
+
+        $ no-cloud encrypt ~/Documents/letters
+        Encryption password: ***
+        Confirmation: ***
+        /home/benoit/Documents/letters/2016-12-20-santa.md
     '''
     password = None if dry_run else get_password('Encryption password',
             confirm=True)
@@ -147,12 +166,20 @@ def encrypt(dry_run, keep, paths):
 
 @cli.command()
 @click.option('-d', '--dry-run', is_flag=True, help='Do not perform anything.')
-@click.option('-k', '--keep', is_flag=True, help='')
+@click.option('-k', '--keep', is_flag=True, help='Leave encrypted files '
+        'behind.')
 @click.argument('paths', nargs=-1)
 def decrypt(dry_run, keep, paths):
-    '''Decrypt files using a passphrase.
+    '''Decrypt files using a password.
 
-        decrypt ~/Documents/invoices
+    Decrypt a Fernet encrypted files. Unless `--keep` is passed, the command
+    will remove the encrypted version of the file.
+
+    Encrypted files must have the `.crypt` extension.
+
+        $ no-cloud decrypt ~/Documents/letters
+        Decryption password: ***
+        /home/benoit/Documents/letters/2016-12-20-santa.md.crypt
     '''
     password = None if dry_run else get_password('Decryption Password')
 
@@ -179,31 +206,94 @@ def decrypt(dry_run, keep, paths):
 
 
 @cli.command()
-@click.option('-s', '--service', help='', default='')
-@click.option('-u', '--username', help='', default='')
-@click.option('-i', '--iterations', help='', default=100000)
-@click.option('-c', '--characters', help='', default='ludp')
-@click.option('-l', '--length', help='', default=32)
-@click.option('-f', '--filename', help='', default=None)
-@click.option('-v', '--version', help='', default=0)
+@click.option('-s', '--service', help='', default='Service to generate a '
+        'password for.')
+@click.option('-u', '--username', help='', default='User name to generate a '
+        'password for.')
+@click.option('-i', '--iterations', help='Number of iterations for the SHA512 '
+        'algorithm (defaults to 100000).', default=100000)
+@click.option('-c', '--characters', help='Characters classes to use for the '
+        'digest; `l` for lowercase, `u` for uppercase, `d` for digits and `p` '
+        'for punctuation (defaults to `ludp`).', default='ludp')
+@click.option('-l', '--length', help='Length of the digest (defaults to 32).',
+        default=32)
+@click.option('-f', '--filename', help='YAML file to read the above '
+        'information from.', default=None)
+@click.option('-v', '--version', help='YAML document starting at zero '
+        '(defaults to 0).', default=0)
+@click.option('-n', '--no-clipboard', is_flag=True, help='Disable clipboard '
+        'copy, password is printed to stdout.')
 def password(service, username, iterations, characters, length, filename,
-        version):
+        version, no_clipboard):
     '''Reproducibly generate passwords.
 
-    Note that `-f` supports encrypted files.
+    Passwords are built using the SHA512 hashing function and a configurable
+    digest function (depending on what characters should be supported).
 
-    Sample YAML file with several versions:
+    To compute passwords, it uses the service name, the user name and a master
+    password. The number of iterations of the algorithm can be tweaked which is
+    especially useful for password rotation (you should keep it above 100000
+    which is the default).
 
+    The hashing function is ran twice, first on the user name using the master
+    password as salt and then on the service name using the initial result as
+    salt.
+
+    This command will print sensitive information to standard output so you
+    *must* make sure this does not represent a security issue.
+
+    - Set your terminal output history (or scrollback) to a sensible value with
+      no saving or restoration.
+    - Activate history skipping in your shell and put a whitespace before the
+      command (or whatever it supports).
+
+    Passwords are copied to the clipboard unless `--no-clipboard` is passed.
+
+        $ no-cloud password --service example.com --username rob@example.com
+        Master password: ***
+        Confirmation: ***
+        service: example.com
+        username: rob@example.com
+        password: *copied to clipboard*
+
+    This command also supports reading credentials from a YAML file through the
+    `--filename` option. It can be transparently encrypted (highly
+    recommended). The master password will *always* be prompted for.
+
+    When reading credentials from a YAML file, the `--version` can be used to
+    determine what YAML document should be used (by default, the first version
+    found is used).
+
+        $ cat ~/Documents/passwords/example.yml
         service: example.com
         username: root@example.com
         iterations: 110000
         comment: >
-          Updated on 2016-12-18
+          Updated on 2016-12-20
         ---
         service: example.com
         username: root@example.com
         comment: >
-          Updated on 2016-12-18
+          Updated on 2016-11-20
+
+    We can now encrypt this file:
+
+        $ no-cloud encrypt ~/Documents/passwords/example.yml
+        Encryption password: ***
+        Confirmation: ***
+        /home/benoit/Documents/passwords/example.yml
+
+    And passwords can be generated:
+
+        $ no-cloud password -f ~/Documents/passwords/example.yml.crypt
+        Decryption password: ***
+        Master password: ***
+        Confirmation: ***
+        service: example.com
+        username: rob@example.com
+        password: *copied to clipboard*
+        comment: >
+          Updated on 2016-12-20
     '''
     config = {
         'service': service,
@@ -241,13 +331,16 @@ def password(service, username, iterations, characters, length, filename,
 
     hashed = digest(hashed, characters, config['length'])
 
-    hashed = copy_to_clipboard(hashed)
+    if not no_clipboard:
+        hashed = copy_to_clipboard(hashed)
 
-    echo('service: %s' % data['service'])
-    echo('username: %s' % data['username'])
+    echo('service: %s' % config['service'])
+    echo('username: %s' % config['username'])
     echo('password: %s' % hashed)
-    echo('comment: >')
-    echo('  %s' % data.get('comment', '').strip())
+
+    if 'comment' in config:
+        echo('comment: >')
+        echo('  %s' % config['comment'].strip())
 
 
 @cli.command()
@@ -259,12 +352,15 @@ def password(service, username, iterations, characters, length, filename,
 def rename(dry_run, force, pattern, paths):
     '''Rename files using a substition pattern.
 
-    Patterns follow the form `s/pattern/replacement/`. Unless `--force` is
-    passed, the command will not overwrite existing files.
+    Substitution patterns follow the form `s/pattern/replacement/`. Unless
+    `--force` is passed, the command will not overwrite existing files.
 
-    To prefix files with a serial number:
+        $ no-cloud rename 's/monica/hillary/' *.png
 
-        rename 's/^/road-trip-$i-/' *.png
+    The special `$i` replacement variable holds the current iteration starting
+    at one and left-padded with zeros according to the number of target files.
+
+        $ no-cloud rename 's/^/$i-/' *.png
     '''
     assert pattern.startswith('s/'), 'invalid pattern'
     assert pattern.endswith('/'), 'invalid pattern'
@@ -301,15 +397,19 @@ def rename(dry_run, force, pattern, paths):
 
 
 @cli.command()
-@click.option('-d', '--dry-run', is_flag=True, help='Do not perform anything.')
+@click.option('-d', '--dry-run', is_flag=True, help='Do not perform anything '
+        '(ie.: not file mode fixing).')
 @click.argument('paths', nargs=-1)
 def audit(dry_run, paths):
     '''Audit files for security issues.
 
     Files that are not encrypted (c) or have an incorrect mode set (m) are
-    printed to stdout. Mode are fixed by default.
+    printed to stdout. File modes are fixed by default.
 
-        audit ~/Documents
+        $ no-cloud audit ~/Documents
+         m /home/benoit/Documents/.no-cloud.yml.crypt
+        c  /home/benoit/Documents/diamond.db
+           /home/benoit/Documents/letters/2016-12-20-santa.md.crypt
     '''
     for filename in list_files(paths):
         clear = not is_encrypted(filename)

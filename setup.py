@@ -34,6 +34,7 @@ setup(
     author='Benoit Myard',
     author_email='myardbenoit@gmail.com',
     description='There is no cloud',
+    long_description='See http://github.com/saalaa/no-cloud.',
     install_requires=requirements,
     zip_safe=False,
     platforms='any',

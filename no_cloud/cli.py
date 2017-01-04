@@ -7,6 +7,7 @@ import sys
 import click
 import string
 
+from . import __version__
 from .remote import get_remote
 from .utils import get_password, copy_to_clipboard
 from .crypto import fernet_encrypt, fernet_decrypt, sha512_hash, digest
@@ -35,9 +36,11 @@ def main():
         die(e)
 
 
-@click.group()
-def cli():
-    pass
+@click.group(invoke_without_command=True)
+@click.option('-v', '--version', is_flag=True, help='Print program version.')
+def cli(version):
+    if version:
+        echo(__version__)
 
 
 @cli.command()

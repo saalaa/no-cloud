@@ -135,6 +135,7 @@ def encrypt(dry_run, keep, paths):
 
     Encrypted files have the `.crypt` extension.
 
+        \b
         $ no-cloud encrypt ~/Documents/letters
         Encryption password: ***
         Confirmation: ***
@@ -177,6 +178,7 @@ def decrypt(dry_run, keep, paths):
 
     Encrypted files must have the `.crypt` extension.
 
+        \b
         $ no-cloud decrypt ~/Documents/letters
         Decryption password: ***
         /home/benoit/Documents/letters/2016-12-20-santa.md.crypt
@@ -242,6 +244,7 @@ def password(service, username, iterations, characters, length, filename,
     This command will print sensitive information to standard output so you
     *must* make sure this does not represent a security issue.
 
+    \b
     - Set your terminal output history (or scrollback) to a sensible value with
       no saving or restoration.
     - Activate history skipping in your shell and put a whitespace before the
@@ -249,6 +252,7 @@ def password(service, username, iterations, characters, length, filename,
 
     Passwords are copied to the clipboard unless `--no-clipboard` is passed.
 
+        \b
         $ no-cloud password --service example.com --username rob@example.com
         Master password: ***
         Confirmation: ***
@@ -264,6 +268,7 @@ def password(service, username, iterations, characters, length, filename,
     determine what YAML document should be used (by default, the first version
     found is used).
 
+        \b
         $ cat ~/Documents/passwords/example.yml
         service: example.com
         username: root@example.com
@@ -278,6 +283,7 @@ def password(service, username, iterations, characters, length, filename,
 
     We can now encrypt this file:
 
+        \b
         $ no-cloud encrypt ~/Documents/passwords/example.yml
         Encryption password: ***
         Confirmation: ***
@@ -285,6 +291,7 @@ def password(service, username, iterations, characters, length, filename,
 
     And passwords can be generated:
 
+        \b
         $ no-cloud password -f ~/Documents/passwords/example.yml.crypt
         Decryption password: ***
         Master password: ***
@@ -406,6 +413,7 @@ def audit(dry_run, paths):
     Files that are not encrypted (c) or have an incorrect mode set (m) are
     printed to stdout. File modes are fixed by default.
 
+        \b
         $ no-cloud audit ~/Documents
          m /home/benoit/Documents/.no-cloud.yml.crypt
         c  /home/benoit/Documents/diamond.db

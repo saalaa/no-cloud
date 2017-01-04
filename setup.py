@@ -1,6 +1,12 @@
 # Copyright (C) 2016 Benoit Myard <myardbenoit@gmail.com>
 # Released under the terms of the BSD license.
 
+# To release a new version:
+#
+#   $ python setup.py sdist upload
+#   $ python setup.py bdist_egg upload
+#   $ python setup.py bdist_wheel upload
+
 import re
 
 from setuptools import setup

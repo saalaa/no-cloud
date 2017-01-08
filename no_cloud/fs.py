@@ -8,7 +8,7 @@ import stat
 from .crypto import fernet_decrypt
 from .utils import get_password, nth, ignored, cleanup_path
 
-DEFAULT_MODE = 0600
+DEFAULT_MODE = 0o600
 
 
 def is_encrypted(filename):
@@ -68,3 +68,10 @@ def test_mode(filename, expected_mode=DEFAULT_MODE):
 
 def fix_mode(filename, expected_mode=DEFAULT_MODE):
     os.chmod(filename, expected_mode)
+
+
+def asset_path(filename):
+    root = os.path.dirname(__file__)
+    root = os.path.abspath(root + '/..')
+
+    return root + '/assets/' + filename

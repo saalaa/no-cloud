@@ -1,0 +1,192 @@
+@page {
+  size: A4;
+  margin: 2cm;
+}
+
+body {
+  font-family: Ubuntu, sans-serif;
+  font-size: 11px;
+  font-weight: normal;
+
+  line-height: 1.3em;
+
+  color: #333;
+}
+
+a {
+  color: #333;
+  text-decoration: none;
+  border-bottom: 1px solid blue;
+}
+
+a:after {
+  content: " (" attr(href) ")";
+}
+
+h1,
+h2,
+h3 {
+  font-weight: normal;
+}
+
+h2 {
+  border-bottom: 1px solid #efefef;
+  line-height: 2em;
+}
+
+h3 em {
+  font-size: 0.9em;
+  color: #999999;
+  margin-left: 1em;
+}
+
+p,
+ul,
+pre,
+blockquote,
+table,
+hr {
+  margin: 0;
+  margin-bottom: 1em;
+}
+
+pre,
+blockquote {
+  border: 0;
+}
+
+pre {
+  padding: 10px 15px;
+
+  font-family: monospace;
+  font-size: 0.8em;
+  line-height: 1.3em;
+
+  background-color: #f8f8f8;
+  color: #333;
+}
+
+ul {
+  padding-left: 2em;
+  list-style-type: none;
+}
+
+ul + ul {
+  color: blue;
+}
+
+ul > li:before {
+  content: "— ";
+  margin-left: -1em;
+}
+
+blockquote {
+  background-color: #f8f8f8;
+  padding: 0.5em 10px;
+  margin-right: 0;
+}
+
+blockquote:before {
+  float: left;
+  content: open-quote;
+
+  font-family: 'Georgia', serif;
+  font-size: 5em;
+  line-height: 0px;
+
+  margin-top: 10px;
+  margin-right: 7px;
+
+  color: #ccc;
+}
+
+blockquote p {
+  display: inline;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+
+  max-width: none;
+  width: 100%;
+
+  text-align: left;
+}
+
+table thead th,
+table tbody th,
+table tfoot th{
+  font-weight: normal;
+}
+
+table thead td,
+table thead th,
+table tbody td,
+table tbody th,
+table tfoot td,
+table tfoot th {
+  padding: 5px;
+
+  color: #585858;
+  border-bottom: 1px solid #e9e9e9;
+}
+
+hr {
+  border: 0;
+  border-bottom: 1px solid #e6e6e6;
+}
+
+/*
+ * Utility classes
+ */
+
+.right {
+  padding-left: 50%;
+}
+
+.letter p,
+p.letter
+{
+  text-indent: 3em;
+}
+
+.t-2  { margin-top:  2em; } .b-2  { margin-bottom:  2em; }
+.t-3  { margin-top:  3em; } .b-3  { margin-bottom:  3em; }
+.t-4  { margin-top:  4em; } .b-4  { margin-bottom:  4em; }
+.t-5  { margin-top:  5em; } .b-5  { margin-bottom:  5em; }
+.t-6  { margin-top:  6em; } .b-6  { margin-bottom:  6em; }
+.t-7  { margin-top:  7em; } .b-7  { margin-bottom:  7em; }
+.t-8  { margin-top:  8em; } .b-8  { margin-bottom:  8em; }
+.t-9  { margin-top:  9em; } .b-9  { margin-bottom:  9em; }
+.t-10 { margin-top: 10em; } .b-10 { margin-bottom: 10em; }
+
+.l-pad-1 { padding-left: 1em; }
+.l-pad-2 { padding-left: 2em; }
+.l-pad-3 { padding-left: 3em; }
+
+.signature {
+  width: 10em;
+  margin: 0 !important;
+}
+
+.pull-right {
+  float: right;
+}
+
+.break {
+  page-break-before: always;
+}
+
+.centered {
+  text-align: center;
+}
+
+.light,
+.light a {
+  color: #999999;
+}
+
+.small {
+  font-size: 0.9em;
+}

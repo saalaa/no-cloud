@@ -8,6 +8,8 @@ There is no cloud.
     pip install no-cloud
 
 
+## Usage
+
 ### Audit files for security issues
 
 Files that are not encrypted (c) or have an incorrect mode set (m) are printed
@@ -206,3 +208,35 @@ Options:
 
 - `-d`, `--dry-run`: do not perform anything.
 - `-f`, `--force`: force renaming, possibly overwriting existing files.
+
+### Render a Markdown file as a PDF
+
+Sample usage:
+
+    $ no-cloud render -p ~/Documents/letters/2016-12-20-santa.md
+    /home/benoit/Documents/letters/2016-12-20-santa.pdf
+
+Markdown rendering supports custom classes through annotations (eg.
+`{: .right}`); here are some classes defined in the default CSS:
+
+- `right`: align a block of text on the right-half of the page
+- `letter`: add 3em worth of indentation for the first line in
+  paragraphs
+- `t-2` to `t-10`: add 2 to 10 em worth of top margin
+- `b-2` to `b-10`: add 2 to 10 em worth of bottom margin
+- `l-pad-1` to `l-pad-3`: add 1 to 3 em worth of left padding
+- `signature`: limit an image's width to 10em
+- `pull-right`: make an element float to the right
+- `break`: insert a page break before an element
+- `centered`: centered text
+- `light`: lighter gray text
+- `small`: smaller texter (0.9em)
+
+It also contains rules for links, code, citations, tables and horizontal
+rules.
+
+Options:
+
+- `-p`, `--preview`: automatically preview document.
+- `-t`, `--timestamp`: timestamp PDF file.
+- `-s`, `--stylesheet`: CSS stylesheet.

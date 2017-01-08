@@ -6,15 +6,22 @@ import re
 import sys
 import click
 import string
+import datetime
+import subprocess
+
 
 from . import __version__
 from .remote import get_remote
-from .utils import get_password, copy_to_clipboard
 from .crypto import fernet_encrypt, fernet_decrypt, sha512_hash, digest
+from .formatter import make_html
+from .utils import get_password, copy_to_clipboard
 from .fs import (
     find_in_path, load_configuration, is_encrypted, list_files, test_mode,
-    fix_mode
+    fix_mode, asset_path
 )
+
+DEFAULT_CSS = 'stylesheet.css'
+DATE_YMD = '%Y-%m-%d'
 
 
 def die(message):
@@ -30,6 +37,15 @@ def echo(message=''):
 
 
 def main():
+    try:
+        __import__('weasyprint')
+    except ValueError as e:
+        if 'unknown locale' not in str(e):
+            raise e
+
+        # Fix locale on Mac OS.
+        os.environ['LC_CTYPE'] = 'en_US'
+
     try:
         cli(obj={})
     except AssertionError as e:
@@ -434,3 +450,73 @@ def audit(dry_run, paths):
 
         if mode and not dry_run:
             fix_mode(filename)
+
+
+@cli.command()
+@click.option('-p', '--preview', is_flag=True, help='Automatically preview '
+        'document.')
+@click.option('-t', '--timestamp', is_flag=True, help='Timestamp PDF file.')
+@click.option('-s', '--stylesheet', help='CSS stylesheet.', default='default')
+@click.argument('paths', nargs=-1)
+def render(preview, timestamp, stylesheet, paths):
+    '''Render a Markdown file as a PDF.
+
+    Sample usage:
+
+        \b
+        $ no-cloud render -p ~/Documents/letters/2016-12-20-santa.md
+        /home/benoit/Documents/letters/2016-12-20-santa.pdf
+
+    Markdown rendering supports custom classes through annotations (eg.
+    `{right}`); here are some classes defined in the default CSS:
+
+    - `right`: align a block of text on the right-half of the page
+    - `letter`: add 3em worth of indentation for the first line in
+      paragraphs
+    - `t-2` to `t-10`: add 2 to 10 em worth of top margin
+    - `b-2` to `b-10`: add 2 to 10 em worth of bottom margin
+    - `l-pad-1` to `l-pad-3`: add 1 to 3 em worth of left padding
+    - `signature`: limit an image's width to 10em
+    - `pull-right`: make an element float to the right
+    - `break`: insert a page break before an element
+    - `centered`: centered text
+    - `light`: lighter gray text
+    - `small`: smaller texter (0.9em)
+
+    It also contains rules for links, code, citations, tables and horizontal
+    rules.
+    '''
+    from weasyprint import HTML, CSS
+
+    for filename in list_files(paths):
+        assert filename.endswith('.md'), ''
+
+        with open(filename) as file:
+            data = file.read()
+
+        html = make_html(data)
+
+        filename, ext = os.path.splitext(filename)
+
+        if timestamp:
+            now = datetime.datetime.now()
+
+            dirname = os.path.dirname(filename)
+            filename = os.path.basename(filename)
+
+            filename = dirname + '/' + now.strftime(DATE_YMD) + '-' + filename
+
+        filename = filename + '.pdf'
+
+        if stylesheet == 'default':
+            stylesheet = asset_path('stylesheet.css')
+
+        echo(filename)
+
+        HTML(string=html) \
+            .write_pdf(filename, stylesheets=[
+                CSS(stylesheet)
+            ])
+
+        if preview:
+            subprocess.call(['open', filename])

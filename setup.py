@@ -44,6 +44,9 @@ setup(
     install_requires=requirements,
     zip_safe=False,
     platforms='any',
+    data_files=[
+        ('assets', ['assets/stylesheet.css'])
+    ],
     packages=[
         'no_cloud',
         'no_cloud.remote'
@@ -59,7 +62,6 @@ setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7'
+        'Programming Language :: Python :: 3'
     ]
 )

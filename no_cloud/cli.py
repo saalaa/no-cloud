@@ -77,18 +77,21 @@ def remote():
         key: PRIVATE_KEY
         secret: SECRET
 
-    Sample configuration for SFTP (not yet implemented):
+    Sample configuration for Minio (also uses S3):
 
         \b
-        driver: sftp
-        host: example.com
-        user: root
-        private_key: >
-          -----BEGIN RSA PRIVATE KEY-----
-          ...
-          -----END RSA PRIVATE KEY-----
+        driver: minio
+        endpoint: https://minio.example.com
+        bucket: documents
+        key: PRIVATE_KEY
+        secret: SECRET
     '''
-    echo(remote.__doc__)
+    doc = remote.__doc__
+
+    doc = re.sub(r'^    ', '', doc, flags=re.M)
+    doc = re.sub('    \b\n', '', doc, flags=re.M)
+
+    echo(doc)
 
 
 @cli.command()

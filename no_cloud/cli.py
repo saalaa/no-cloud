@@ -409,7 +409,13 @@ def rename(dry_run, force, pattern, paths):
 
     fmt = '%0' + str(length) + 'd'
 
-    files = [{'src': file, 'dst': None} for file in filenames]
+    files = []
+    for filename in filenames:
+        files.append({
+            'path': os.path.dirname(filename),
+            'src': os.path.basename(filename),
+            'dst': None
+        })
 
     pattern, replacement = pattern[2:-1].split('/', 1)
     pattern = re.compile(pattern)
@@ -418,6 +424,9 @@ def rename(dry_run, force, pattern, paths):
     for file in files:
         repl = replacement[:].replace('$i', fmt % i)
         file['dst'] = pattern.sub(repl, file['src'])
+
+        file['src'] = file['path'] + '/' + file['src']
+        file['dst'] = file['path'] + '/' + file['dst']
 
         echo(file['dst'])
 

@@ -332,6 +332,18 @@ def password(service, username, iterations, characters, length, filename,
         'length': length
     }
 
+    def done(password):
+        if not no_clipboard:
+            password = copy_to_clipboard(password)
+
+        echo('service: %s' % config['service'])
+        echo('username: %s' % config['username'])
+        echo('password: %s' % password)
+
+        if 'comment' in config:
+            echo('comment: >')
+            echo('  %s' % config['comment'].strip())
+
     if filename:
         data = load_configuration(filename, version)
 
@@ -341,11 +353,14 @@ def password(service, username, iterations, characters, length, filename,
     assert config['username'], 'missing username'
     assert config['length'] > 0, 'invalid length'
 
+    if 'password' in config:
+        return done(config['password'])
+
     characters = ''
     if 'l' in config['characters']:
-        characters += string.lowercase * 3
+        characters += string.ascii_lowercase * 3
     if 'u' in config['characters']:
-        characters += string.uppercase * 3
+        characters += string.ascii_uppercase * 3
     if 'd' in config['characters']:
         characters += string.digits * 3
     if 'p' in config['characters']:
@@ -360,16 +375,7 @@ def password(service, username, iterations, characters, length, filename,
 
     hashed = digest(hashed, characters, config['length'])
 
-    if not no_clipboard:
-        hashed = copy_to_clipboard(hashed)
-
-    echo('service: %s' % config['service'])
-    echo('username: %s' % config['username'])
-    echo('password: %s' % hashed)
-
-    if 'comment' in config:
-        echo('comment: >')
-        echo('  %s' % config['comment'].strip())
+    done(hashed)
 
 
 @cli.command()
@@ -488,6 +494,8 @@ def render(preview, timestamp, stylesheet, paths):
 
     It also contains rules for links, code, citations, tables and horizontal
     rules.
+
+    Please note that this feature may not work on Python2/Mac OS.
     '''
     from weasyprint import HTML, CSS
 
